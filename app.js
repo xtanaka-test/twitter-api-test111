@@ -5,6 +5,8 @@ const { TwitterApi } = require('twitter-api-v2');
 var express = require('express');
 var app = express();
 
+const port = process.env.PORT || 3001;
+
 const CONSUMER_KEY = process.env.CONSUMER_KEY;
 const CONSUMER_SECRET = process.env.CONSUMER_SECRET;
 const CALLBACK = process.env.CALLBACK;
@@ -42,7 +44,7 @@ app.get('/callback', (req, res) => {
         .catch(() => res.status(403).send('Invalid verifier or access tokens!'));
 });
 
-app.listen(80, function () {
+app.listen(port, function () {
 });
 
 async function init() {
