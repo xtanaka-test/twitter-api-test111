@@ -1,0 +1,13 @@
+{
+  "name": "twitter-test",
+  "version": "0.0.0",
+  "description": "TwitterTest",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  },
+  "dependencies": {
+    "express": "^4.17.3",
+    "twitter-api-v2": "^1.12.0"
+  }
+}
