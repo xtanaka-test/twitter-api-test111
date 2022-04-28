@@ -7,6 +7,7 @@
     "name": ""
   },
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "express": "^4.17.3",
     "twitter-api-v2": "^1.12.0"
   }

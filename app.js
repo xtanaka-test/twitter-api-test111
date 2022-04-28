@@ -2,8 +2,13 @@
 
 // This will work with Node.js on CommonJS mode (TypeScript or not)
 const { TwitterApi } = require('twitter-api-v2');
-var express = require('express');
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const { response } = require('express');
+
 var app = express();
+app.use(cookieParser());
+
 
 const port = process.env.PORT || 3001;
 
@@ -13,8 +18,19 @@ const CALLBACK = process.env.CALLBACK;
 
 var oauth_token_secret;
 
-
 app.use(express.static('public'));
+
+app.get('/auth', async (req, res) => {
+
+    const client = new TwitterApi({
+        appKey: CONSUMER_KEY,
+        appSecret: CONSUMER_SECRET,
+    });
+
+    const authLink = await client.generateAuthLink(CALLBACK);
+    oauth_token_secret = authLink.oauth_token_secret;
+    res.redirect(authLink.url);
+});
 
 app.get('/callback', (req, res) => {
     // Extract tokens from query string
@@ -40,22 +56,41 @@ app.get('/callback', (req, res) => {
             console.log(accessToken);
             console.log(accessSecret);
 
+            res.cookie('token', accessToken, { maxAge: 60000, httpOnly: false });
+            res.cookie('sec', accessSecret, { maxAge: 60000, httpOnly: false });
+            res.redirect("/");
+
         })
         .catch(() => res.status(403).send('Invalid verifier or access tokens!'));
 });
 
-app.listen(port, function () {
-});
+app.get('/timeline', async (req, res) => {
 
-async function init() {
+
+    console.log(req.cookies);
+
+    var accessToken = req.cookies.token;
+    var accessSecret = req.cookies.sec;
+
+
+
     const client = new TwitterApi({
         appKey: CONSUMER_KEY,
         appSecret: CONSUMER_SECRET,
+        accessToken: accessToken,
+        accessSecret: accessSecret,
     });
 
-    const authLink = await client.generateAuthLink(CALLBACK);
-    oauth_token_secret = authLink.oauth_token_secret;
-    console.log(authLink);
+    var v2 = client.v2;
+    var response = await v2.me();
+    console.log(response);
 
-}
+    var timeline = await v2.userTimeline(response.data.id);
+    console.log(timeline.data);
+    res.json(timeline.data);
+
+});
+
+app.listen(port, function () {
+});
 
