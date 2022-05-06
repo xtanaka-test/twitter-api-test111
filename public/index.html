@@ -25,8 +25,9 @@
             <button class="btn btn-primary" onclick="getTimeline()">タイムライン取得</button>
             <button class="btn btn-primary" onclick="getFollowers()">フォロワー取得</button>
             <button class="btn btn-primary" onclick="getFollowing()">フォロー取得</button>
-
+            <button class="btn btn-primary" onclick="getLiked()">いいね取得</button>
             
+
         </div>
         <div class="col-12">
             <pre id="log">
@@ -71,6 +72,16 @@
 
         function getFollowing() {
             fetch('/following')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    var log = document.getElementById("log");
+                    log.innerHTML = JSON.stringify(data, null, '\t');
+                });
+        }
+        
+        function getLiked() {
+            fetch('/liked')
                 .then(response => response.json())
                 .then(data => {
                     console.log(data);

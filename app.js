@@ -110,6 +110,22 @@ app.get('/following', async (req, res) => {
     }
 });
 
+
+app.get('/liked', async (req, res) => {
+
+    var client = getClient(req.cookies);
+    var v2 = client.v2;
+
+    var id = await getMeId(v2);
+    var liked = await v2.userLikedTweets(id);
+
+    if (liked.data != null) {
+        res.json(liked.data);
+    } else {
+        res.json({ "response": "nodata" });
+    }
+});
+
 function getClient(cookie) {
 
     var accessToken = cookie.token;
