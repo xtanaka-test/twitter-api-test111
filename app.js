@@ -66,13 +66,54 @@ app.get('/callback', (req, res) => {
 
 app.get('/timeline', async (req, res) => {
 
+    var client = getClient(req.cookies);
+    var v2 = client.v2;
 
-    console.log(req.cookies);
+    var id = await getMeId(v2);
+    var timeline = await v2.userTimeline(id);
+    if (timeline.data != null) {
+        console.log(timeline.data);
+        res.json(timeline.data);
+    } else {
+        res.json({ "response": "nodata" });
+    }
 
-    var accessToken = req.cookies.token;
-    var accessSecret = req.cookies.sec;
+});
 
+app.get('/followers', async (req, res) => {
 
+    var client = getClient(req.cookies);
+    var v2 = client.v2;
+
+    var id = await getMeId(v2);
+    var followers = await v2.followers(id);
+
+    if (followers.data != null) {
+        res.json(followers.data);
+    } else {
+        res.json({ "response": "nodata" });
+    }
+});
+
+app.get('/following', async (req, res) => {
+
+    var client = getClient(req.cookies);
+    var v2 = client.v2;
+
+    var id = await getMeId(v2);
+    var following = await v2.following(id);
+
+    if (following.data != null) {
+        res.json(following.data);
+    } else {
+        res.json({ "response": "nodata" });
+    }
+});
+
+function getClient(cookie) {
+
+    var accessToken = cookie.token;
+    var accessSecret = cookie.sec;
 
     const client = new TwitterApi({
         appKey: CONSUMER_KEY,
@@ -81,15 +122,13 @@ app.get('/timeline', async (req, res) => {
         accessSecret: accessSecret,
     });
 
-    var v2 = client.v2;
+    return client;
+}
+
+async function getMeId(v2){
     var response = await v2.me();
-    console.log(response);
-
-    var timeline = await v2.userTimeline(response.data.id);
-    console.log(timeline.data);
-    res.json(timeline.data);
-
-});
+    return response.data.id;
+};
 
 app.listen(port, function () {
 });
